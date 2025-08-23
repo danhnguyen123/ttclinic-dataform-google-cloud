@@ -1,0 +1,9 @@
+config {
+  type: "table",
+  schema: "pancake",
+  tags: ["daily"],
+  description: "",
+}
+
+select *
+from ${ref("pancake", "vw_customers")}

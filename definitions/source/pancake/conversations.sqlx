@@ -1,0 +1,5 @@
+config {
+    type: "view",
+    schema: "pancake",
+    description: "Cleaned version of stackoverflow.badges"
+}

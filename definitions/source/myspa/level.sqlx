@@ -1,0 +1,5 @@
+config {
+    type: "view",
+    schema: "myspa",
+    description: "Cleaned version of stackoverflow.badges"
+}

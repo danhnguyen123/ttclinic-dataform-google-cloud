@@ -1,0 +1,9 @@
+config {
+  type: "table",
+  schema: "myspa",
+  tags: ["daily"],
+  description: "",
+}
+
+select *
+from ${ref("myspa", "vw_customers")}

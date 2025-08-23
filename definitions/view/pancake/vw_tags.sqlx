@@ -1,0 +1,28 @@
+config {
+    type: "view",
+    schema: "pancake",
+    description: "view pancake"
+}
+
+SELECT 'Thành công' AS tag, 1 AS pri, 'service_status' as type UNION ALL
+SELECT 'Từ chối/ không chốt', 2, 'service_status' UNION ALL
+SELECT 'Gọi tư vấn', 3, 'service_status' UNION ALL
+SELECT 'Đang chat', 4, 'service_status' UNION ALL
+
+SELECT 'Lead đạt ', 1, 'lead_type' UNION ALL
+SELECT 'K là mục tiêu', 2, 'lead_type' UNION ALL
+
+SELECT 'Chăm sóc da', 1, 'service_interest' UNION ALL
+SELECT 'Mụn sẹo', 1, 'service_interest' UNION ALL
+SELECT 'Nâng cơ TH', 1, 'service_interest' UNION ALL
+SELECT 'Điều trị sắc tố', 1, 'service_interest' UNION ALL
+SELECT 'Filler, botox', 1, 'service_interest' UNION ALL
+SELECT 'Cấy tinh chất', 1, 'service_interest' UNION ALL
+SELECT 'Giảm mỡ', 1, 'service_interest' UNION ALL
+SELECT 'Body', 1, 'service_interest' UNION ALL
+SELECT 'Khám Tư vấn', 1, 'service_interest' UNION ALL
+SELECT 'Sản phẩm', 1, 'service_interest' UNION ALL
+
+SELECT 'KH mới', 1, 'customer_status'
+
+

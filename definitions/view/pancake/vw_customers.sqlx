@@ -1,0 +1,117 @@
+config {
+    type: "view",
+    schema: "pancake",
+    description: "view pancake"
+}
+
+with 
+customer as (
+  select
+    id,
+    name,
+    if(array_length(phone_numbers) > 0, phone_numbers[offset(0)], null) as phone_number
+  from ${ref("customers")} c
+  # Filter trang Facebook TTCLiNIC
+  where platform = 'facebook'
+  and page_name = 'TTCLiNIC'
+)
+,
+conv as (
+  select id as conversation_id,
+        inserted_at,
+        if(array_length(tags) > 0, array_to_string(tags, "|"), null) all_tags,
+
+        (
+          SELECT p.tag
+          FROM UNNEST(COALESCE(tags, [])) AS t
+          JOIN ${ref("vw_tags")} p
+            ON t = p.tag and p.type = 'service_status'
+          ORDER BY p.pri
+          LIMIT 1
+        ) AS service_status,
+
+        (
+          SELECT p.tag
+          FROM UNNEST(COALESCE(tags, [])) AS t
+          JOIN ${ref("vw_tags")} p
+            ON t = p.tag and p.type = 'lead_type'
+          ORDER BY p.pri
+          LIMIT 1
+        ) AS lead_type,
+
+        (
+          SELECT p.tag
+          FROM UNNEST(COALESCE(tags, [])) AS t
+          JOIN ${ref("vw_tags")} p
+            ON t = p.tag and p.type = 'customer_status'
+          ORDER BY p.pri
+          LIMIT 1
+        ) AS customer_status,
+
+        NULLIF(
+          ARRAY_TO_STRING(
+            ARRAY(
+              SELECT tag
+              FROM UNNEST(tags) AS tag
+              WHERE tag IN (
+                select tag 
+                from ${ref("vw_tags")} 
+                where type = 'service_interest'
+                )
+            ), '|'
+          ), ''
+        ) AS service_interest,
+
+        last_sent_by.admin_name as last_sent_admin,
+        "https://pancake.vn/Ttclinic.vn?c_id=" || id as link,
+        page_customer.id customer_id,
+        page_customer.name customer_name,
+        if(array_length(recent_phone_numbers) > 0, recent_phone_numbers[offset(0)], null) as phone_number
+        -- recent_phone_numbers
+  from ${ref("conversations")} 
+  where 1=1
+  and platform = "facebook"
+  and page_name = "TTCLiNIC"
+  and type = "INBOX" -- Hộp thoại
+)
+,
+message as (
+  select conversation_id, string_agg(sender.name || ": " || original_message, "\n" order by inserted_at) as note
+  from ${ref("messages")} 
+  group by conversation_id
+)
+
+select c.* except(service_status, service_interest, customer_status, lead_type),
+      coalesce(ef.nguon_lead, "facebook") as lead_source,
+      coalesce(c.service_status, ef.tinh_trang_tu_van) as service_status, # lay tu tag Panckae
+      coalesce(c.service_interest, ef.nhom_dich_vu_quan_tam) service_interest, # lay tu tag Panckae
+      coalesce(c.customer_status, ef.khach_hang_status) customer_status, # lay tu tag Panckae
+      coalesce(c.lead_type, ef.lead_type) lead_type, # lay tu tag Panckae
+from (
+  select conv.conversation_id,
+        conv.inserted_at as lead_created_at,
+        conv.all_tags,
+        conv.service_status,
+        conv.lead_type,
+        conv.customer_status,
+        conv.service_interest,
+        conv.last_sent_admin,
+        conv.link,
+        coalesce(conv.customer_name, customer.name) as customer_name,
+        coalesce(conv.phone_number, customer.phone_number) as phone_number,
+        message.note
+  from conv
+  left join customer on customer.id = conv.customer_id
+  left join message on message.conversation_id = conv.conversation_id
+) c
+left join  ${ref("ttc_external_facebook")} ef on ef.sdt = c.phone_number
+
+
+
+
+
+
+
+
+
+
