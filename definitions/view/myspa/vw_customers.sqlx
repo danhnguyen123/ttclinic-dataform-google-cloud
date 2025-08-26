@@ -9,7 +9,7 @@ first_last_txn as (
       select *,
             case when date_diff(current_date, last_transaction_at, day) <= 30 then "Active T30"
                   when date_diff(current_date, last_transaction_at, day) <= 60 then "Active T60"
-                  when date_diff(current_date, last_transaction_at, day) <= 90 then "Inactive"
+                  when date_diff(current_date, last_transaction_at, day) <= 90 then "Active T90"
                   else "Churn" end as status_tier 
       from (
             select distinct 
