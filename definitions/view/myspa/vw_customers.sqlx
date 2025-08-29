@@ -39,7 +39,7 @@ select *
 from (
       select c.ma_khach_hang as customer_id, 
             c.ho_ten as full_name,
-            c.so_dien_thoai as phone_number,
+            `data-analytics-service.warehouse.normalize_phonenumber`(c.so_dien_thoai) as phone_number,
             c.ngay_sinh birthday,
             c.dia_chi address,
             c.phuong_xa as ward,
