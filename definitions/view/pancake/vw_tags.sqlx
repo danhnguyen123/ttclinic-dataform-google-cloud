@@ -23,6 +23,6 @@ SELECT 'Body', 1, 'service_interest' UNION ALL
 SELECT 'Khám Tư vấn', 1, 'service_interest' UNION ALL
 SELECT 'Sản phẩm', 1, 'service_interest' UNION ALL
 
-SELECT 'KH mới', 1, 'customer_status'
-
+SELECT 'KH Mới', 1, 'customer_status' UNION ALL
+SELECT 'KH cũ', 1, 'customer_status'
 
