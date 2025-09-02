@@ -14,8 +14,8 @@ first_last_txn as (
       from (
             select distinct 
                   ma_khach_hang as customer_id,
-                  first_value(ngay_gio) over(customer_order) as first_transaction_at,
-                  last_value(ngay_gio) over(customer_order) as last_transaction_at,
+                  min(ngay_gio) over(customer_order) as first_transaction_at,
+                  max(ngay_gio) over(customer_order) as last_transaction_at,
                   first_value(ten_san_pham) over(customer_order) as first_service,
                   last_value(ten_san_pham) over(customer_order) as last_service,
             from ${ref("order")}
@@ -39,7 +39,7 @@ select *
 from (
       select c.ma_khach_hang as customer_id, 
             c.ho_ten as full_name,
-            c.so_dien_thoai as phone_number,
+            `data-analytics-service.warehouse.normalize_phonenumber`(c.so_dien_thoai) as phone_number,
             c.ngay_sinh birthday,
             c.dia_chi address,
             c.phuong_xa as ward,
