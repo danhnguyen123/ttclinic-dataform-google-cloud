@@ -81,18 +81,14 @@ message as (
   group by conversation_id
 )
 
-select c.* except(service_status, service_interest, customer_status, lead_type),
-      coalesce(ef.nguon_lead, "facebook") as lead_source,
-      coalesce(c.service_status, ef.tinh_trang_tu_van) as service_status, # lay tu tag Panckae
-      coalesce(c.service_interest, ef.nhom_dich_vu_quan_tam) service_interest, # lay tu tag Panckae
-      coalesce(c.customer_status, ef.khach_hang_status) customer_status, # lay tu tag Panckae
-      coalesce(c.lead_type, ef.lead_type) lead_type, # lay tu tag Panckae
+select *
 from (
   select conv.conversation_id,
         conv.inserted_at as lead_created_at,
         conv.all_tags,
         conv.service_status,
         conv.lead_type,
+        "Facebook" as lead_source,
         conv.customer_status,
         conv.service_interest,
         conv.last_sent_admin,
@@ -103,8 +99,24 @@ from (
   from conv
   left join customer on customer.id = conv.customer_id
   left join message on message.conversation_id = conv.conversation_id
-) c
-left join  ${ref("ttc_external_facebook")} ef on ef.sdt = c.phone_number
+)
+union all (
+  select "external_facebook" as conversation_id,
+         datetime(ngay_input) as lead_created_at,
+         null as all_tags,
+         tinh_trang_tu_van as service_status,
+         lead_type,
+         nguon_lead as lead_source,
+         case when khach_hang_status = 'KH mới' then 'KH Mới'
+              when khach_hang_status = 'KH cũ' then 'KH cũ' end as customer_status,
+         nhom_dich_vu_quan_tam as service_interest,
+         cskh as last_sent_admin,
+         null as link,
+         ho_va_ten_kh as customer_name,
+         case when length(sdt) = 9 and left(sdt, 1) <> '0' then '0' || sdt else sdt end as phone_number,
+         null as note
+  from ${ref("ttc_external_facebook")}
+)
 
 
 
