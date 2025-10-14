@@ -101,21 +101,25 @@ from (
   left join message on message.conversation_id = conv.conversation_id
 )
 union all (
-  select "external_facebook" as conversation_id,
-         datetime(ngay_input) as lead_created_at,
-         null as all_tags,
-         tinh_trang_tu_van as service_status,
-         lead_type,
-         nguon_lead as lead_source,
-         case when khach_hang_status = 'KH mới' then 'KH Mới'
-              when khach_hang_status = 'KH cũ' then 'KH cũ' end as customer_status,
-         nhom_dich_vu_quan_tam as service_interest,
-         cskh as last_sent_admin,
-         null as link,
-         ho_va_ten_kh as customer_name,
-         case when length(sdt) = 9 and left(sdt, 1) <> '0' then '0' || sdt else sdt end as phone_number,
-         null as note
-  from ${ref("ttc_external_facebook")}
+  select coalesce(customer_name, '') || '|' || coalesce(phone_number, '') as conversation_id, 
+         a.*
+  from (
+    select 
+          datetime(ngay_input) as lead_created_at,
+          cast(null as string) all_tags,
+          tinh_trang_tu_van as service_status,
+          lead_type,
+          nguon_lead as lead_source,
+          case when khach_hang_status = 'KH mới' then 'KH Mới'
+                when khach_hang_status = 'KH cũ' then 'KH cũ' end as customer_status,
+          nhom_dich_vu_quan_tam as service_interest,
+          cskh as last_sent_admin,
+          cast(null as string) as link,
+          ho_va_ten_kh as customer_name,
+          case when length(sdt) = 9 and left(sdt, 1) <> '0' then '0' || sdt else sdt end as phone_number,
+          cast(null as string) as note
+    from ${ref("ttc_external_facebook")}
+  ) a
 )
 
 
