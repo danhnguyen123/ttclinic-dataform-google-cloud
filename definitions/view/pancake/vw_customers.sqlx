@@ -84,6 +84,7 @@ message as (
 select *
 from (
   select conv.conversation_id,
+        conv.customer_id,
         conv.inserted_at as lead_created_at,
         conv.all_tags,
         conv.service_status,
@@ -102,6 +103,7 @@ from (
 )
 union all (
   select coalesce(customer_name, '') || '|' || coalesce(phone_number, '') as conversation_id, 
+         cast(FARM_FINGERPRINT(phone_number) as string) as customer_id,
          a.*
   from (
     select 
