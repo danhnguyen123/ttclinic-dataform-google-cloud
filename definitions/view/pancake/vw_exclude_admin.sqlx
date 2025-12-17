@@ -1,0 +1,28 @@
+config {
+    type: "view",
+    schema: "pancake",
+    description: "view pancake"
+}
+
+select distinct exclude_id
+from (
+  select id as exclude_id
+  from ${ref("users")} 
+  union all
+  select fb_id as exclude_id
+  from ${ref("users")} 
+  union all
+  select page_id as exclude_id
+  from ${ref("users")} 
+  union all
+  select distinct sender.id as exclude_id
+  from ${ref("messages")} 
+  where sender.name in (
+    'TTCLiNIC',
+    'Lạc Hy',
+    'Antarra Spa & Treatment ',
+    'vu',
+    'TTClinic'
+  )
+)
+
